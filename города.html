@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Города</title>
+	<meta charset="utf-8">
+	<style type='text/css'>
+		button {
+			text-decoration: none;
+			display: inline-block;
+			padding: 5px 5px;
+			margin: 10px 20px;
+			position: relative;
+			overflow: hidden;
+			border: 2px solid #000000;
+			border-radius: 8px;
+			font-family: 'Montserrat', sans-serif;
+			color: #97deff;
+			transition: .2s ease-in-out;
+			outline: none;
+			background: #fff;
+			color: #000000;
+			font-size: 15px;
+		}
+		button:disabled {
+			background: #000000;
+			color: #ffffff;
+		}
+		button:hover {
+			  background: #000000;
+			  color: #ffffff;
+		}
+		input {
+			padding: 0px 10px;
+  			border-radius: 10px;
+  			font-size: 18px;
+  			border: 0;
+  			outline: none;
+  			text-align: center;
+		}
+		.ruleTime {
+			background: #f9a58c;
+		}
+		.timeTimer {
+			font-size: 32px;
+			font-family: "Comic Sans MS", cursive, sans-serif;
+		}
+		.pole {
+			width: 50%;
+	    	min-width: 800px;
+	    	max-width: 1920px;
+			background: #3f83a3;
+			margin: 0 auto;
+			height: 860px;
+			text-align: center;
+			font-size: 18px;
+		}
+		.fieldEnter {
+			margin: 0 auto;
+			padding-top: 20px;
+			background: #97deff;
+		}
+		.message {
+			background: #fff;
+			height: 50px;
+			border: 1px solid #000000;
+		}
+		.playerOne {
+			background: #d1a4df;
+			width: 300px;
+			height: 25px;
+			margin: 0 auto;
+		}
+		.playerTwo {
+			background: #c5c5d1;
+			width: 300px;
+			height: 25px;
+			margin: 0 auto;
+		}
+	</style>
+	 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+</head>
+<body>
+	<div class='pole'>
+		<br><div class='ruleTime'>
+			<span>Выберете время игры:</span>
+			<select class='time'>
+				<option>1</option>
+			  	<option>5</option>
+			  	<option>10</option>
+			  	<option>15</option>
+			  	<option>30</option>
+			  <option>60</option>
+			</select> минут
+			<button class='setTimer' onclick='setTime()'>Задать время</button><br>
+			<div class='timeTimer'>
+				<span class='minute'>00</span>:<span class='second'>00</span>
+			</div>
+			<button class='startTimer' onclick='countdown()'>Начать</button>
+		</div>
+		<div class='fieldEnter'>
+			<span class='explanations'>Каждый участник вписывает реально существующий Российский город, название которого начинается на ту букву, которой оканчивается название предыдущего города.</span><br><br>
+			<span>Введите название города <input class='field' onKeyPress='if(event.keyCode == 13) enterWord()'></span><br><br>
+			<span>Осталось городов: <span class='numberOfSities'>1117</span></span><br><br>
+			<div class='message'></div><br><br>
+		</div>
+		<div class='poleCitiesAnswer'></div>
+	</div>		
+	<script type='text/javascript'>
+		let cities = [];
+		const field = document.querySelector('.field');
+		field.disabled = true;
+		function enterWord() {
+			const numberOfSities = document.querySelector('.numberOfSities');
+			const number = parseInt(numberOfSities.innerText)-1;
+			const field = document.querySelector('.field').value.toLowerCase();
+			const clear = document.querySelector('.field').value='';
+			const message = document.querySelector('.message');
+			const div = document.createElement('div');
+			message.innerText = '';
+			if(existingCities.includes(field)) {
+				if(cities.length == 0) {
+					correctly(field);
+					const element = existingCities.splice(existingCities.indexOf(field), 1);
+					numberOfSities.innerText = number;
+				} else if(!cities.includes(field)) {
+					let last = cities[cities.length-1];
+					const exclude = last.slice(-1).includes('ё') || last.slice(-1).includes('ъ') || last.slice(-1).includes('ы') || last.slice(-1).includes('ь');
+		    		if(exclude) {
+			    		if(last.slice(-2, -1) == field.slice(0, 1)) {
+			    			numberOfSities.innerText = number;
+							const element = existingCities.splice(existingCities.indexOf(field), 1);
+							correctly(field);
+				    	} else {
+				    		div.innerText = 'Если город заканчивается на букву, на которую нет городов, название города должно начинаться на предыдущую букву';
+					    	message.append(div);
+					    }
+			    	} else if(last.slice(-1) == field.slice(0, 1)) {
+					    numberOfSities.innerText = number;
+					    correctly(field);
+					    const element = existingCities.splice(existingCities.indexOf(field), 1);
+						} else {
+						div.innerText = 'Название города должно начинаться на первую букву предыдущего города';
+						message.append(div);
+					}
+				}
+			} else if(cities.includes(field)) {
+					div.innerText = 'Такой город уже был';
+					message.append(div);
+			} else {
+			    div.innerText = 'Такого города не существует';
+			    message.append(div);
+			}
+			clear;
+		};
+		let check = false;
+		function correctly(field) {
+			check = !check;
+			const pole = document.querySelector('.pole');
+			const poleCitiesAnswer = document.querySelector('.poleCitiesAnswer');
+			const div = document.createElement('div');
+			cities.push(field);
+			if(field.includes(' ')) {
+				//match(/\s/g)
+				arrName = field.split(' '); 
+				div.innerText = arrName[0][0].toUpperCase() + arrName[0].slice(1) + ' ' + arrName[1][0].toUpperCase() + arrName[1].slice(1);
+			} else if(field.includes('-')){
+				arrName = field.split('-'); 
+				if(arrName.length < 3) {
+				div.innerText = arrName[0][0].toUpperCase() + arrName[0].slice(1) + '-' +arrName[1][0].toUpperCase() + arrName[1].slice(1);
+				} else { 
+					div.innerText = arrName[0][0].toUpperCase() + arrName[0].slice(1) + '-' + arrName[1] + '-' + arrName[2][0].toUpperCase() + arrName[2].slice(1);
+				}
+			} else {
+				div.innerText = field[0].toUpperCase() + field.slice(1);
+			}
+			if(check) {
+				div.classList.add('playerOne');
+			} else {
+				div.classList.add('playerTwo');
+			}
+			poleCitiesAnswer.append(div);
+		}
+	</script>
+	<script type='text/javascript' src='arr.js'></script>
+	<script type='text/javascript' src='timer.js'></script>
+</body>
+</html>
